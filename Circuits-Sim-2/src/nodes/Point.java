@@ -2,6 +2,7 @@ package nodes;
 
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
+import java.util.HashMap;
 import java.util.UUID;
 
 import root.Arbs;
@@ -21,6 +22,16 @@ public class Point {
 		this.uuid = uuid;
 		this.on = false;
 		this.connectedUUID = "";
+	}
+	
+	public Point(HashMap<String, Point> pointMap) {
+		this(UUID.randomUUID().toString());
+		pointMap.put(this.uuid, this);
+	}
+	
+	public Point(String uuid, HashMap<String, Point> pointMap) {
+		this(uuid);
+		pointMap.put(this.uuid, this);
 	}
 	
 	public void draw(Graphics2D g) {
@@ -47,5 +58,11 @@ public class Point {
 	public void setPosition(int x, int y) {
 		this.x = x;
 		this.y = y;
+	}
+	
+	public static Point makePoint(HashMap<String, Point> pointMap) {
+		Point toAdd = new Point();
+		pointMap.put(toAdd.getUuid(), toAdd);
+		return toAdd;
 	}
 }

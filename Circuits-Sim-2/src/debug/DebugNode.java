@@ -25,12 +25,12 @@ public class DebugNode {
 		Switch switch2 = new Switch(100,200);
 		And and = new And(300,150);
 
-		switch1.addToOutputs(makePoint(outputs).getUuid());
-		switch2.addToOutputs(makePoint(outputs).getUuid());
+		switch1.addToOutputs(new Point(outputs).getUuid());
+		switch2.addToOutputs(new Point(outputs).getUuid());
 		
-		and.addToOutputs(makePoint(outputs).getUuid());
-		and.addToInputs(makePoint(inputs).getUuid());
-		and.addToInputs(makePoint(inputs).getUuid());
+		and.addToOutputs(new Point(outputs).getUuid());
+		and.addToInputs(new Point(inputs).getUuid());
+		and.addToInputs(new Point(inputs).getUuid());
 
 		outputs.get(switch1.getOutputUUIDs().get(0)).setConnectedUUID(and.getInputUUIDs().get(0));
 		outputs.get(switch2.getOutputUUIDs().get(0)).setConnectedUUID(and.getInputUUIDs().get(1));
@@ -45,11 +45,5 @@ public class DebugNode {
 //		nodes.get(1).getOutputByIndex(0).setConnectedUUID(nodes.get(2).getInputByIndex(1).getUuid());
 		
 		return nodes;
-	}
-	
-	public static Point makePoint(HashMap<String, Point> pointMap) {
-		Point toAdd = new Point();
-		pointMap.put(toAdd.getUuid(), toAdd);
-		return toAdd;
 	}
 }

@@ -105,34 +105,9 @@ public class Node {
 		return (int) (Math.min(this.w,  this.h) * factor);
 	}
 
-	public Point getInputByIndex(int index) {return this.inputs.get(index);}
-	public Point getOutputByIndex(int index) {return this.outputs.get(index);}
+	public String getInputByIndex(int index) {return this.inputUUIDs.get(index);}
+	public String getOutputByIndex(int index) {return this.outputUUIDs.get(index);}
 
-	public Point getInputByUUID(String uuid) {
-		Point toOut = null;
-		
-		for (Point point :  inputs) {
-			if (point.getUuid().equals(uuid)) toOut = point;
-		}
-		
-		if (toOut == null) {
-//			System.out.println("Point <" + uuid + "> was not found.");
-		}
-		return toOut;
-	}
-	public Point getOutputByUUID(String uuid) {
-		Point toOut = null;
-		
-		for (Point point :  outputs) {
-			if (point.getUuid().equals(uuid)) toOut = point;
-		}
-		
-		if (toOut == null) {
-//			System.out.println("Point <" + uuid + "> was not found.");
-		}
-		return toOut;
-	}
-	
 	public boolean getHovering(Mouse mouse, Camera camera) {
 		boolean hovering = false;
 		
