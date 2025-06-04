@@ -55,11 +55,13 @@ public class Main {
 	//Rendering-related fields
 	public static int scrW = 800, scrH = 800, fps = 60;;
 	public static float aspectRatio = (float) scrW / (float) scrH;
+	public static float scrollFactor = 1.5f;
 	
 	public static ArrayList<Node> nodes = new ArrayList<>();
 	
 	public static Node heldNode = null;
 	public static int[] heldNodeOffset = {0,0};
+	public static int[] cameraDrag = {0,0,0,0};
 
 	public static void main(String[] args) throws Exception {
 		init();
@@ -136,6 +138,22 @@ public class Main {
 		
 		grabbingNodes();
 		
+		if (mouse.getIsVerticalScroll()) {
+			int scrollDiff = (camera.getY() - (int) (mouse.getScrollDifference() * scrollFactor));
+			camera.setY(scrollDiff);
+			System.out.println(scrollDiff);
+		}
+		else {
+			int scrollDiff = (camera.getX() - (int) (mouse.getScrollDifference() * scrollFactor));
+			camera.setX(scrollDiff);
+			System.out.println(scrollDiff);
+		}
+		mouse.setScrollDifference(0);
+		
+		if (heldNode == null && mouse.LEFT()) { //Camera dragging
+			camera.setX(cameraDrag[2] - (mouse.getX() - cameraDrag[0]));
+			camera.setY(cameraDrag[3] - (mouse.getY() - cameraDrag[1]));
+		}
 	}
 	
 	public static void grabbingNodes() {
@@ -144,15 +162,21 @@ public class Main {
 				for (Node node : nodes) {
 					if (node.getHovering(mouse, camera)) {
 						heldNode = node;
-						heldNodeOffset[0] = mouse.getX() - node.getX();
-						heldNodeOffset[1] = mouse.getY() - node.getY();
+						heldNodeOffset[0] = mouse.getX() - node.getX() - camera.getX();
+						heldNodeOffset[1] = mouse.getY() - node.getY() - camera.getY();
 					}
+				}
+				if (heldNode == null) { //Camera dragging
+					cameraDrag[0] = mouse.getX();
+					cameraDrag[1] = mouse.getY();
+					cameraDrag[2] = camera.getX();
+					cameraDrag[3] = camera.getY();
 				}
 			}
 		}
 		else {
-			heldNode.setX(mouse.getX() - heldNodeOffset[0]);
-			heldNode.setY(mouse.getY() - heldNodeOffset[1]);
+			heldNode.setX(mouse.getX() - heldNodeOffset[0] - camera.getX());
+			heldNode.setY(mouse.getY() - heldNodeOffset[1] - camera.getY());
 			if (mouse.LEFTRELEASED()) heldNode = null;
 		}
 	}

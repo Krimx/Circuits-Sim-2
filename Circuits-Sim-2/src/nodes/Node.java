@@ -74,7 +74,7 @@ public class Node {
 		drawPoints(g);
 		
 		g.setColor(Colors.borderColor);
-		g.drawString(this.name, corner[0] + Arbs.fontHorizPadding, corner[1] + g.getFontMetrics(g.getFont()).getHeight() / 4 + this.h / 2);
+		g.drawString(this.name, corner[0] + Arbs.fontHorizPadding - camera.getX(), corner[1] + g.getFontMetrics(g.getFont()).getHeight() / 4 + this.h / 2 - camera.getY());
 	}
 	
 	public void drawPoints(Graphics2D g) {
