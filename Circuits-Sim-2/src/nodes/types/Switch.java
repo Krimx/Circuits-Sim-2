@@ -1,12 +1,9 @@
 package nodes.types;
 
-import java.awt.Color;
-
 import inputs.Keyboard;
 import inputs.Mouse;
 import main.Camera;
 import nodes.Node;
-import nodes.Point;
 import root.Arbs;
 import root.Colors;
 
@@ -16,7 +13,6 @@ public class Switch extends Node {
 	public Switch(int x, int y, int w, int h, String name, String type) {
 		super(x, y, w, h, Colors.switchOff, name, type);
 		this.on = false;
-		super.getOutputs().add(new Point());
 	}
 
 	public Switch(int x, int y) {

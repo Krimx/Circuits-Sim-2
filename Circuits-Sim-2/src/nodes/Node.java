@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 import inputs.Keyboard;
@@ -20,6 +21,8 @@ public class Node {
 	private String name, type, uuid;
 	private ArrayList<Point> inputs = new ArrayList<>();
 	private ArrayList<Point> outputs = new ArrayList<>();
+	private ArrayList<String> inputUUIDs = new ArrayList<>();
+	private ArrayList<String> outputUUIDs = new ArrayList<>();
 	private Font rubik;
 	
 	public Node(int x, int y, int w, int h, Color color, String name, String type) {
@@ -52,17 +55,19 @@ public class Node {
 	public void setType(String type) { this.type = type; }
 	public String getUuid() { return uuid; }
 	public void setUuid(String uuid) { this.uuid = uuid; }
-	public ArrayList<Point> getInputs() {return this.inputs;}
-	public ArrayList<Point> getOutputs() {return this.outputs;}
+	public void addToInputs(String toAdd) {inputUUIDs.add(toAdd);}
+	public void addToOutputs(String toAdd) {outputUUIDs.add(toAdd);}
+	public ArrayList<String> getOutputUUIDs() {return this.outputUUIDs;}
+	public ArrayList<String> getInputUUIDs() {return this.inputUUIDs;}
 	
-	public void render(Graphics2D g, Camera camera) {
+	public void render(Graphics2D g, Camera camera, HashMap<String, Point> inputs, HashMap<String, Point> outputs) {
 		
 		int[] corner = this.getTopLeftCorner();
 		int arc = this.getArc(0.3f);
 		g.setFont(Fonts.rubik);
 		
 		this.w = (Arbs.fontHorizPadding * 2) + Fonts.getTextLength(g, this.name);
-		pointPositions(camera);
+		pointPositions(camera, inputs, outputs);
 		
 		g.setColor(this.color);
 		g.fillRoundRect(corner[0] - camera.getX(), corner[1] - camera.getY(), this.w, this.h, arc, arc);
@@ -71,19 +76,19 @@ public class Node {
 		g.setColor(Colors.borderColor);
 		g.drawRoundRect(corner[0] - camera.getX(), corner[1] - camera.getY(), this.w, this.h, arc, arc);
 		
-		drawPoints(g);
+		drawPoints(g, inputs, outputs);
 		
 		g.setColor(Colors.borderColor);
 		g.drawString(this.name, corner[0] + Arbs.fontHorizPadding - camera.getX(), corner[1] + g.getFontMetrics(g.getFont()).getHeight() / 4 + this.h / 2 - camera.getY());
 	}
 	
-	public void drawPoints(Graphics2D g) {
+	public void drawPoints(Graphics2D g, HashMap<String, Point> inputs, HashMap<String, Point> outputs) {
 		//Outputs
-		for (int i = 0; i < this.outputs.size(); i++) {
-			this.outputs.get(i).draw(g);
+		for (int i = 0; i < this.outputUUIDs.size(); i++) {
+			outputs.get(this.outputUUIDs.get(i)).draw(g);
 		}
-		for (int i = 0; i < this.inputs.size(); i++) {
-			this.inputs.get(i).draw(g);
+		for (int i = 0; i < this.inputUUIDs.size(); i++) {
+			inputs.get(this.inputUUIDs.get(i)).draw(g);
 		}
 	}
 	
@@ -146,38 +151,36 @@ public class Node {
 	public void update(Keyboard keys, Mouse mouse, Camera camera) {
 	}
 	
-	public void pointPositions(Camera camera) {
+	public void pointPositions(Camera camera, HashMap<String, Point> inputs, HashMap<String, Point> outputs) {
 		int[] corner = this.getTopLeftCorner();
 		
-		for (int i = 0; i < this.outputs.size(); i++) {
+		for (int i = 0; i < this.outputUUIDs.size(); i++) {
 			int toX = corner[0] + this.w - camera.getX();
 			int toY = corner[1] + 2 * Arbs.pointVertPadding + (i * Arbs.pointVertPadding) + (i * Arbs.pointDiam - (Arbs.pointDiam / 2)) - camera.getY();
-			this.outputs.get(i).setPosition(toX, toY);
+			outputs.get(this.outputUUIDs.get(i)).setPosition(toX, toY);
 			
 		}
 		
-		for (int i = 0; i < this.inputs.size(); i++) {
+		for (int i = 0; i < this.inputUUIDs.size(); i++) {
 			int toX = corner[0] - camera.getX();
 			int toY = corner[1] + 2 *  Arbs.pointVertPadding + (i * Arbs.pointVertPadding) + (i * Arbs.pointDiam - (Arbs.pointDiam / 2)) - camera.getY();
-			this.inputs.get(i).setPosition(toX, toY);
+			inputs.get(this.inputUUIDs.get(i)).setPosition(toX, toY);
 			
 		}
 	}
 	
-	public void drawConnections(Graphics2D g, ArrayList<Node> nodes) {
+	public void drawConnections(Graphics2D g, ArrayList<Node> nodes, HashMap<String, Point> inputs, HashMap<String, Point> outputs) {
 		g.setColor(this.color);
 		g.setStroke(new BasicStroke(2));
 		
-		for (Point output : this.outputs) {
-			for (int i = 0; i < nodes.size(); i++) {
-				if (nodes.get(i).getUuid().equals(this.uuid)) continue;
-				Point input = nodes.get(i).getInputByUUID(output.getConnectedUUID());
-				if (input != null) {
-					int[] startPoint = {output.getX(), output.getY()};
-					int[] endPoint = {input.getX(), input.getY()};
-					
-					g.drawLine(startPoint[0], startPoint[1], endPoint[0], endPoint[1]);
-				}
+		for (int i = 0; i < this.outputUUIDs.size(); i++) {
+			Point output = outputs.get(this.outputUUIDs.get(i));
+			Point input = inputs.get(output.getConnectedUUID());
+			if (input != null) {
+				int[] startPoint = {output.getX(), output.getY()};
+				int[] endPoint = {input.getX(), input.getY()};
+				
+				g.drawLine(startPoint[0], startPoint[1], endPoint[0], endPoint[1]);
 			}
 		}
 	}

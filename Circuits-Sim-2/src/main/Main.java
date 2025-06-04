@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -13,10 +14,12 @@ import debug.DebugNode;
 import inputs.Keyboard;
 import inputs.Mouse;
 import nodes.Node;
+import nodes.Point;
 import root.Colors;
-import root.Fonts;
 
 class Screen extends JPanel {
+	private static final long serialVersionUID = 1L;
+
 	public void paintComponent(Graphics g) {
 //		super.paintComponent(g);
 		
@@ -28,10 +31,10 @@ class Screen extends JPanel {
 		g2.fillRect(0, 0, Main.scrW,  Main.scrH);
 		
 		for (int i = 0; i < Main.nodes.size(); i++) {
-			Main.nodes.get(i).drawConnections(g2, Main.nodes);
+			Main.nodes.get(i).drawConnections(g2, Main.nodes, Main.inputs, Main.outputs);
 		}
 		for (int i = 0; i < Main.nodes.size(); i++) {
-			Main.nodes.get(i).render(g2, Main.camera);
+			Main.nodes.get(i).render(g2, Main.camera, Main.inputs, Main.outputs);
 		}
 	}
 }
@@ -58,6 +61,8 @@ public class Main {
 	public static float scrollFactor = 1.5f;
 	
 	public static ArrayList<Node> nodes = new ArrayList<>();
+	public static HashMap<String, Point> inputs = new HashMap<>();
+	public static HashMap<String, Point> outputs = new HashMap<>();
 	
 	public static Node heldNode = null;
 	public static int[] heldNodeOffset = {0,0};
@@ -82,7 +87,7 @@ public class Main {
 		mouse.setYOffset(-30);
 		frame.setVisible(true);
 		
-		nodes = DebugNode.makeTestLayout(nodes);
+		nodes = DebugNode.makeTestLayout(nodes, inputs, outputs);
 	}
 	
 	public static void startMainThread() throws Exception {
@@ -138,15 +143,17 @@ public class Main {
 		
 		grabbingNodes();
 		
+		cameraMove();
+	}
+	
+	public static void cameraMove() {
 		if (mouse.getIsVerticalScroll()) {
 			int scrollDiff = (camera.getY() - (int) (mouse.getScrollDifference() * scrollFactor));
 			camera.setY(scrollDiff);
-			System.out.println(scrollDiff);
 		}
 		else {
 			int scrollDiff = (camera.getX() - (int) (mouse.getScrollDifference() * scrollFactor));
 			camera.setX(scrollDiff);
-			System.out.println(scrollDiff);
 		}
 		mouse.setScrollDifference(0);
 		
