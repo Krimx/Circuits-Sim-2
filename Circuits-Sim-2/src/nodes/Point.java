@@ -13,6 +13,7 @@ public class Point {
 	private boolean on;
 	private String connectedUUID;
 	private int x,y;
+	private boolean hovering;
 	
 	public Point() {
 		this(UUID.randomUUID().toString());
@@ -22,6 +23,7 @@ public class Point {
 		this.uuid = uuid;
 		this.on = false;
 		this.connectedUUID = "";
+		this.hovering = false;
 	}
 	
 	public Point(HashMap<String, Point> pointMap) {
@@ -37,7 +39,9 @@ public class Point {
 	public void draw(Graphics2D g) {
 		int[] corner = {this.x - (Arbs.pointDiam / 2), this.y - (Arbs.pointDiam / 2)};
 		
-		g.setColor(Colors.pointIn);
+		if (this.hovering) g.setColor(Colors.pointHoveredIn);
+		else g.setColor(Colors.pointIn);
+		
 		g.fillOval(corner[0], corner[1], Arbs.pointDiam, Arbs.pointDiam);
 		
 		g.setColor(Colors.borderColor);
@@ -55,6 +59,14 @@ public class Point {
 	public void setX(int x) { this.x = x; }
 	public int getY() { return y; }
 	public void setY(int y) { this.y = y; }
+	public boolean isHovering() {
+		return hovering;
+	}
+
+	public void setHovering(boolean hovering) {
+		this.hovering = hovering;
+	}
+
 	public void setPosition(int x, int y) {
 		this.x = x;
 		this.y = y;

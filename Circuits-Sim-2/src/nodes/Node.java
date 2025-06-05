@@ -19,8 +19,6 @@ public class Node {
 	private int x,y,w,h;
 	private Color color;
 	private String name, type, uuid;
-	private ArrayList<Point> inputs = new ArrayList<>();
-	private ArrayList<Point> outputs = new ArrayList<>();
 	private ArrayList<String> inputUUIDs = new ArrayList<>();
 	private ArrayList<String> outputUUIDs = new ArrayList<>();
 	private Font rubik;
@@ -123,7 +121,7 @@ public class Node {
 		return hovering;
 	}
 	
-	public void update(Keyboard keys, Mouse mouse, Camera camera) {
+	public void update(Keyboard keys, Mouse mouse, Camera camera, HashMap<String, Point> inputs, HashMap<String, Point> outputs) {
 	}
 	
 	public void pointPositions(Camera camera, HashMap<String, Point> inputs, HashMap<String, Point> outputs) {
@@ -158,5 +156,63 @@ public class Node {
 				g.drawLine(startPoint[0], startPoint[1], endPoint[0], endPoint[1]);
 			}
 		}
+	}
+	
+	public Point isHoveringOverPoint(Mouse mouse, Camera camera, HashMap<String, Point> inputs, HashMap<String, Point> outputs) {
+		Point toOut = null;
+		
+		for (int i = 0; i < this.inputUUIDs.size(); i++) {
+			Point point = inputs.get(this.inputUUIDs.get(i));
+			
+			int[] coords = {mouse.getX() - camera.getX(), mouse.getY() - camera.getY(), point.getX() - camera.getX(), point.getY() - camera.getY()};
+			
+			double distance = Math.sqrt(Math.pow(coords[0] - coords[2], 2) + Math.pow(coords[1] - coords[3], 2));
+			
+			if (distance <= (double) (Arbs.pointDiam / 2)) {
+				toOut = point;
+			}
+		}
+		for (int i = 0; i < this.outputUUIDs.size(); i++) {
+			Point point = outputs.get(this.outputUUIDs.get(i));
+			
+			int[] coords = {mouse.getX() - camera.getX(), mouse.getY() - camera.getY(), point.getX() - camera.getX(), point.getY() - camera.getY()};
+			
+			double distance = Math.sqrt(Math.pow(coords[0] - coords[2], 2) + Math.pow(coords[1] - coords[3], 2));
+			
+			if (distance <= (double) (Arbs.pointDiam / 2)) {
+				toOut = point;
+			}
+		}
+		
+		return toOut;
+	}
+	
+	public String isHoveringOverPointUUID(Mouse mouse, Camera camera, HashMap<String, Point> inputs, HashMap<String, Point> outputs) {
+		String toOut = "";
+		
+		for (int i = 0; i < this.inputUUIDs.size(); i++) {
+			Point point = inputs.get(this.inputUUIDs.get(i));
+			
+			int[] coords = {mouse.getX() - camera.getX(), mouse.getY() - camera.getY(), point.getX() - camera.getX(), point.getY() - camera.getY()};
+			
+			double distance = Math.sqrt(Math.pow(coords[0] - coords[2], 2) + Math.pow(coords[1] - coords[3], 2));
+			
+			if (distance <= (double) (Arbs.pointDiam / 2)) {
+				toOut = point.getUuid();
+			}
+		}
+		for (int i = 0; i < this.outputUUIDs.size(); i++) {
+			Point point = outputs.get(this.outputUUIDs.get(i));
+			
+			int[] coords = {mouse.getX() - camera.getX(), mouse.getY() - camera.getY(), point.getX() - camera.getX(), point.getY() - camera.getY()};
+			
+			double distance = Math.sqrt(Math.pow(coords[0] - coords[2], 2) + Math.pow(coords[1] - coords[3], 2));
+			
+			if (distance <= (double) (Arbs.pointDiam / 2)) {
+				toOut = point.getUuid();
+			}
+		}
+		
+		return toOut;
 	}
 }

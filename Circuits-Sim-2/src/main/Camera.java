@@ -2,11 +2,12 @@ package main;
 
 public class Camera {
 	private int x,y;
+	private float zoom;
 
 	public Camera(int x, int y) {
-		super();
 		this.x = x;
 		this.y = y;
+		this.zoom = 1;
 	}
 
 	public int getX() {
@@ -23,5 +24,13 @@ public class Camera {
 
 	public void setY(int y) {
 		this.y = y;
+	}
+
+	public float getZoom() {
+		return zoom;
+	}
+
+	public void setZoom(float zoom) {
+		this.zoom = zoom;
 	}
 }

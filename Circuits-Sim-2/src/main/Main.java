@@ -1,11 +1,14 @@
 package main;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -29,6 +32,13 @@ class Screen extends JPanel {
 		//Background
 		g2.setColor(Colors.bgColor);
 		g2.fillRect(0, 0, Main.scrW,  Main.scrH);
+		
+		if (Main.heldPoint != null) {
+			g2.setColor(Color.red);
+			g2.setStroke(new BasicStroke(2));
+			g2.drawLine(Main.heldPoint.getX() - Main.camera.getX(), Main.heldPoint.getY() - Main.camera.getY(), Main.mouse.getX(), Main.mouse.getY());
+		}
+		
 		
 		for (int i = 0; i < Main.nodes.size(); i++) {
 			Main.nodes.get(i).drawConnections(g2, Main.nodes, Main.inputs, Main.outputs);
@@ -59,12 +69,14 @@ public class Main {
 	public static int scrW = 800, scrH = 800, fps = 60;;
 	public static float aspectRatio = (float) scrW / (float) scrH;
 	public static float scrollFactor = 1.5f;
+	public static int mouseScrollDifference = 0;
 	
 	public static ArrayList<Node> nodes = new ArrayList<>();
 	public static HashMap<String, Point> inputs = new HashMap<>();
 	public static HashMap<String, Point> outputs = new HashMap<>();
 	
 	public static Node heldNode = null;
+	public static Point heldPoint = null;
 	public static int[] heldNodeOffset = {0,0};
 	public static int[] cameraDrag = {0,0,0,0};
 
@@ -130,6 +142,8 @@ public class Main {
 	}
 	
 	public static void updateSystem() {
+		scrW = cont.getWidth();
+		scrH = cont.getHeight();
 	}
 	
 	public static void mainLoop() {
@@ -137,11 +151,21 @@ public class Main {
 			running = false;
 		}
 		
-		for (Node node : nodes) {
-			node.update(keys, mouse, camera);
+		for (Map.Entry<String, Point> entry : inputs.entrySet()) {
+		    Point point = entry.getValue();
+		    point.setHovering(false);
+		}
+		for (Map.Entry<String, Point> entry : outputs.entrySet()) {
+		    Point point = entry.getValue();
+		    point.setHovering(false);
 		}
 		
-		grabbingNodes();
+		for (Node node : nodes) {
+			node.update(keys, mouse, camera, inputs, outputs);
+		}
+
+		grabbingPoints();
+		if (heldPoint == null) grabbingNodes();
 		
 		cameraMove();
 	}
@@ -157,7 +181,7 @@ public class Main {
 		}
 		mouse.setScrollDifference(0);
 		
-		if (heldNode == null && mouse.LEFT()) { //Camera dragging
+		if (heldNode == null && heldPoint == null && mouse.LEFT()) { //Camera dragging
 			camera.setX(cameraDrag[2] - (mouse.getX() - cameraDrag[0]));
 			camera.setY(cameraDrag[3] - (mouse.getY() - cameraDrag[1]));
 		}
@@ -185,6 +209,40 @@ public class Main {
 			heldNode.setX(mouse.getX() - heldNodeOffset[0] - camera.getX());
 			heldNode.setY(mouse.getY() - heldNodeOffset[1] - camera.getY());
 			if (mouse.LEFTRELEASED()) heldNode = null;
+		}
+	}
+	
+
+	public static void grabbingPoints() {
+		Point hoveredPoint = null;
+		
+		for (Node node : nodes) {
+			String hoveredUUID = node.isHoveringOverPointUUID(mouse, camera, inputs, outputs);
+			hoveredPoint = inputs.get(hoveredUUID);
+			if (hoveredPoint == null) hoveredPoint = outputs.get(hoveredUUID);
+			if (hoveredPoint != null) {
+				hoveredPoint.setHovering(true);
+				break;
+			}
+		}
+		
+		if (hoveredPoint != null) {
+			if (mouse.LEFTCLICKED()) {
+				heldPoint = hoveredPoint;
+				
+				if (heldPoint == null) { //Camera dragging
+					cameraDrag[0] = mouse.getX();
+					cameraDrag[1] = mouse.getY();
+					cameraDrag[2] = camera.getX();
+					cameraDrag[3] = camera.getY();
+				}
+				
+			}
+		}
+		if (heldPoint != null) {
+			if (mouse.LEFTRELEASED()) {
+				heldPoint = null;
+			}
 		}
 	}
 }

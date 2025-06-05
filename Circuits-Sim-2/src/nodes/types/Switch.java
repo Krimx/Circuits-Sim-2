@@ -1,9 +1,12 @@
 package nodes.types;
 
+import java.util.HashMap;
+
 import inputs.Keyboard;
 import inputs.Mouse;
 import main.Camera;
 import nodes.Node;
+import nodes.Point;
 import root.Arbs;
 import root.Colors;
 
@@ -20,8 +23,8 @@ public class Switch extends Node {
 	}
 	
 	@Override
-	public void update(Keyboard keys, Mouse mouse, Camera camera) {
-		super.update(keys, mouse, camera);
+	public void update(Keyboard keys, Mouse mouse, Camera camera, HashMap<String, Point> inputs, HashMap<String, Point> outputs) {
+		super.update(keys, mouse, camera, inputs, outputs);
 		if (super.getHovering(mouse, camera)) {
 			if (keys.SPACETYPED()) {
 				this.on = !this.on;
