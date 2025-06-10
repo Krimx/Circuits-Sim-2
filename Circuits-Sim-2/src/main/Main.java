@@ -18,6 +18,7 @@ import inputs.Keyboard;
 import inputs.Mouse;
 import nodes.Node;
 import nodes.Point;
+import root.Arbs;
 import root.Colors;
 
 class Screen extends JPanel {
@@ -36,7 +37,7 @@ class Screen extends JPanel {
 		if (Main.heldPoint != null) {
 			g2.setColor(Color.red);
 			g2.setStroke(new BasicStroke(2));
-			g2.drawLine(Main.heldPoint.getX() - Main.camera.getX(), Main.heldPoint.getY() - Main.camera.getY(), Main.mouse.getX(), Main.mouse.getY());
+			Arbs.drawBezier(g2, Main.heldPoint.getX(), Main.heldPoint.getY(), Main.mouse.getX(), Main.mouse.getY(), Colors.connectionColor);
 		}
 		
 		

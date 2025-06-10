@@ -1,7 +1,10 @@
 package nodes;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RadialGradientPaint;
+import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -37,16 +40,37 @@ public class Point {
 	}
 	
 	public void draw(Graphics2D g) {
-		int[] corner = {this.x - (Arbs.pointDiam / 2), this.y - (Arbs.pointDiam / 2)};
-		
-		if (this.hovering) g.setColor(Colors.pointHoveredIn);
-		else g.setColor(Colors.pointIn);
-		
-		g.fillOval(corner[0], corner[1], Arbs.pointDiam, Arbs.pointDiam);
-		
-		g.setColor(Colors.borderColor);
-		g.setStroke(new BasicStroke(3));
-		g.drawOval(corner[0], corner[1], Arbs.pointDiam, Arbs.pointDiam);
+	    int radius = Arbs.pointDiam / 2;
+	    int centerX = this.x;
+	    int centerY = this.y;
+	    int drawX = centerX - radius;
+	    int drawY = centerY - radius;
+
+	    // Choose base color depending on hover state
+	    Color base = this.hovering ? Colors.pointHoveredIn : Colors.pointIn;
+
+	    // Define radial gradient
+	    float[] dist = {.7f, 1f};
+	    Color[] colors = {
+	        base, // center
+	        base.darker()    // edge
+	    };
+
+	    RadialGradientPaint gradient = new RadialGradientPaint(
+	        new Point2D.Float(centerX, centerY),
+	        radius,
+	        dist,
+	        colors
+	    );
+
+	    // Fill with gradient
+	    g.setPaint(gradient);
+	    g.fillOval(drawX, drawY, Arbs.pointDiam, Arbs.pointDiam);
+
+	    // Draw border
+	    g.setColor(Colors.nodeBorderColor);
+	    g.setStroke(new BasicStroke(Arbs.pointStroke));
+	    g.drawOval(drawX, drawY, Arbs.pointDiam, Arbs.pointDiam);
 	}
 
 	public String getUuid() { return uuid; }

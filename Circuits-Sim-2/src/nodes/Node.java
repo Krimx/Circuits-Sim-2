@@ -3,6 +3,7 @@ package nodes;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,25 +60,59 @@ public class Node {
 	public ArrayList<String> getInputUUIDs() {return this.inputUUIDs;}
 	
 	public void render(Graphics2D g, Camera camera, HashMap<String, Point> inputs, HashMap<String, Point> outputs) {
-		
 		int[] corner = this.getTopLeftCorner();
-		int arc = this.getArc(0.3f);
+		int arc = this.getArc(Arbs.nodeArcFactor);
 		g.setFont(Fonts.rubik);
 		
 		this.w = (Arbs.fontHorizPadding * 2) + Fonts.getTextLength(g, this.name);
 		pointPositions(camera, inputs, outputs);
 		
-		g.setColor(this.color);
-		g.fillRoundRect(corner[0] - camera.getX(), corner[1] - camera.getY(), this.w, this.h, arc, arc);
+		drawShadow(g,camera, corner, arc);
 		
-		g.setStroke(new BasicStroke(3));
-		g.setColor(Colors.borderColor);
-		g.drawRoundRect(corner[0] - camera.getX(), corner[1] - camera.getY(), this.w, this.h, arc, arc);
-		
+		//Draw points
 		drawPoints(g, inputs, outputs);
 		
-		g.setColor(Colors.borderColor);
+		//Draw node bg
+//		renderStandardBg(g,camera,corner,arc);
+		renderGradBg(g,camera,corner,arc);
+		
+		//Draw node border
+		g.setStroke(new BasicStroke(Arbs.nodeStroke));
+		g.setColor(Colors.nodeBorderColor);
+		g.drawRoundRect(corner[0] - camera.getX(), corner[1] - camera.getY(), this.w, this.h, arc, arc);
+		
+		
+		
+		//Render node name
+		g.setColor(Colors.textColor);
 		g.drawString(this.name, corner[0] + Arbs.fontHorizPadding - camera.getX(), corner[1] + g.getFontMetrics(g.getFont()).getHeight() / 4 + this.h / 2 - camera.getY());
+	}
+	
+	public void renderStandardBg(Graphics2D g, Camera camera, int[] corner, int arc) {
+		g.setColor(this.color);
+		g.fillRoundRect(corner[0] - camera.getX(), corner[1] - camera.getY(), this.w, this.h, arc, arc);
+	}
+	
+	public void drawShadow(Graphics2D g, Camera camera, int[] corner, int arc) {
+		int drawX = corner[0] - camera.getX();
+		int drawY = corner[1] - camera.getY();
+		
+		g.setColor(Colors.shadowColor);
+		g.fillRoundRect(drawX + Arbs.shadowOffset, drawY + Arbs.shadowOffset, this.w, this.h, arc, arc);
+	}
+	
+	public void renderGradBg(Graphics2D g, Camera camera, int[] corner, int arc) {
+		int drawX = corner[0] - camera.getX();
+		int drawY = corner[1] - camera.getY();
+		
+		Color[] gradColors = Colors.getGradientColors(this.color);
+		
+		GradientPaint bgGradient = new GradientPaint(
+			    drawX, drawY, Colors.blend(Colors.nodeBaseColor, this.color, 0.4f),     // Top color
+			    drawX, drawY + (int) (this.h / 1), Colors.blend(Colors.nodeBaseColor, this.color, 0.2f)  // Bottom color
+			);
+			g.setPaint(bgGradient);
+			g.fillRoundRect(drawX, drawY, this.w, this.h, arc, arc);
 	}
 	
 	public void drawPoints(Graphics2D g, HashMap<String, Point> inputs, HashMap<String, Point> outputs) {
@@ -136,7 +171,7 @@ public class Node {
 		
 		for (int i = 0; i < this.inputUUIDs.size(); i++) {
 			int toX = corner[0] - camera.getX();
-			int toY = corner[1] + 2 *  Arbs.pointVertPadding + (i * Arbs.pointVertPadding) + (i * Arbs.pointDiam - (Arbs.pointDiam / 2)) - camera.getY();
+			int toY = corner[1] - camera.getY() + (i * Arbs.pointDiam) + (i * Arbs.pointVertPadding) + (int) (1.5 * Arbs.pointVertPadding);
 			inputs.get(this.inputUUIDs.get(i)).setPosition(toX, toY);
 			
 		}
@@ -153,7 +188,8 @@ public class Node {
 				int[] startPoint = {output.getX(), output.getY()};
 				int[] endPoint = {input.getX(), input.getY()};
 				
-				g.drawLine(startPoint[0], startPoint[1], endPoint[0], endPoint[1]);
+//				g.drawLine(startPoint[0], startPoint[1], endPoint[0], endPoint[1]);
+				Arbs.drawBezierGlow(g, startPoint[0], startPoint[1], endPoint[0], endPoint[1], Colors.bgColor, this.color, 16f, 8);
 			}
 		}
 	}

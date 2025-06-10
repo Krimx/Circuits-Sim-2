@@ -12,7 +12,7 @@ import root.Colors;
 
 public class And extends Node {
 	public And(int x, int y, int w, int h, String name, String type) {
-		super(x, y, w, h, Colors.and, name, type);
+		super(x, y, w, h, Colors.nodeDustyLilac, name, type);
 	}
 
 	public And(int x, int y) {
